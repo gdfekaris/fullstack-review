@@ -1,13 +1,4 @@
 const mongoose = require('mongoose');
-// mongoose.connect('mongodb://localhost/fetcher');
-
-// var db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'connection error:'));
-// db.once('open', function () {
-//   // we're connected!
-//   console.log("we're connected!");
-// });
-
 
 mongoose.Promise = require('bluebird');
 var promise = mongoose.connect('mongodb://localhost/repoSchema', {
@@ -16,8 +7,7 @@ var promise = mongoose.connect('mongodb://localhost/repoSchema', {
 
 promise.once('open', function(){
   console.log('Database - opened!')
-})
-
+});
 
 let repoSchema = mongoose.Schema({
   username: String,
@@ -28,28 +18,23 @@ let repoSchema = mongoose.Schema({
 let Repo = mongoose.model('Repo', repoSchema);
 
 let save = (data) => {
-  // for reference, see mongoose docs --> https://mongoosejs.com/docs/index.html
-
   var parsedData = JSON.parse(data);
-  console.log('Raw data -->', parsedData);
 
-  for (var i = 0; i < parsedData.length; i++) {
-    var newEntry = new Repo({
-      username: parsedData[i].owner.login,
-      reponame: parsedData[i].name,
-      repoURL: parsedData[i].html_url,
+  parsedData.forEach((repo) => {
+    let mongoDocument = new Repo({
+      username: repo.owner.login,
+      reponame: repo.name,
+      repoURL: repo.html_url
     });
 
-    newEntry.save(function (err) {
+    mongoDocument.save((err) => {
       if (err) {
-        console.log('An error occurred!', err);
+        console.log('ERROR: ', err);
       } else {
-        console.log('data store successfully in db!!');
-      };
+        console.log('Document saved successfully!')
+      }
     });
-  }
-
+  })
 }
 
 module.exports.save = save;
-//module.exports.find = find;

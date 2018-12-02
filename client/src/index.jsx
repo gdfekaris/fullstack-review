@@ -9,8 +9,8 @@ class App extends React.Component {
     super(props);
     this.state = {
       repos: []
-    }
-
+    };
+    this.list = this.list.bind(this);
   }
 
   search (term) {
@@ -25,9 +25,9 @@ class App extends React.Component {
   //   this.list()
   // }
 
-  // list(){
-  //   $.get()
-  // }
+  list() {
+    $.get()
+  }
 
   render () {
     return (<div>
