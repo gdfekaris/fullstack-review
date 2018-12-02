@@ -1,41 +1,55 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/fetcher');
+// mongoose.connect('mongodb://localhost/fetcher');
 
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-  // we're connected!
-  console.log("we're connected!");
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function () {
+//   // we're connected!
+//   console.log("we're connected!");
+// });
+
+
+mongoose.Promise = require('bluebird');
+var promise = mongoose.connect('mongodb://localhost/repoSchema', {
+  useMongoClient: true,
 });
 
+promise.once('open', function(){
+  console.log('Database - opened!')
+})
+
+
 let repoSchema = mongoose.Schema({
-  id: Number,
   username: String,
-  ownerUrl: String,
-  repoName: String,
-  repoUrl: String,
+  reponame: String,
+  repoURL: {type: 'string', unique: true},
 });
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (err, data) => {
+let save = (data) => {
   // for reference, see mongoose docs --> https://mongoosejs.com/docs/index.html
 
-  var newEntry = new Repo({
-    id: data[0].id,
-    username: data[0].owner.login,
-    ownerUrl: data[0].owner.url,
-    repoName: data[0].name,
-    repoUrl: data[0].html_url,
-  });
+  var parsedData = JSON.parse(data);
+  console.log('Raw data -->', parsedData);
 
-  newEntry.save(function (err) {
-    if (err) {
-      console.log('An error occurred!', err);
-    } else {
-      console.log('data store successfully in db!!');
-    };
-  });
+  for (var i = 0; i < parsedData.length; i++) {
+    var newEntry = new Repo({
+      username: parsedData[i].owner.login,
+      reponame: parsedData[i].name,
+      repoURL: parsedData[i].html_url,
+    });
+
+    newEntry.save(function (err) {
+      if (err) {
+        console.log('An error occurred!', err);
+      } else {
+        console.log('data store successfully in db!!');
+      };
+    });
+  }
+
 }
 
 module.exports.save = save;
+//module.exports.find = find;

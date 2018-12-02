@@ -15,14 +15,19 @@ class App extends React.Component {
 
   search (term) {
     console.log(`${term} was searched`);
-    $.ajax({
-      type: "POST",
-      url: 'http://localhost:1128/repos',
-      data: term,
-      success: function(data) { console.log('POST was sent') },
-      dataType: 'JSON'
+    $.post("/repos", { username: term }, function(data) {
+      //this.list();
+      console.log('POST sent');
     });
   }
+
+  // componentDidMount(){
+  //   this.list()
+  // }
+
+  // list(){
+  //   $.get()
+  // }
 
   render () {
     return (<div>
