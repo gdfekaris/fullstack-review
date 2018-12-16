@@ -37,4 +37,12 @@ let save = (data) => {
   })
 }
 
+const find = (callback) => {
+  Repo.find((err, repos) => {
+    if (err) {return console.log('Error getting repos', err);}
+    return callback(repos);
+  });
+}
+
 module.exports.save = save;
+module.exports.find = find;
